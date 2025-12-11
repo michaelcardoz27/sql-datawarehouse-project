@@ -20,11 +20,12 @@ IF OBJECT_ID ('[silver].[crm_prod_info]','U') IS NOT NULL
 CREATE TABLE [silver].[crm_prod_info](
 	[prd_id] [int] NULL,
 	[prd_key] [nvarchar](50) NULL,
+	[cat_id] [nvarchar](50) NULL, ----- added this column after cleaning and before inserting process from bronze to silver layer
 	[prd_nm] [nvarchar](50) NULL,
 	[prd_cost] [int] NULL,
 	[prd_line] [nvarchar](50) NULL,
-	[prd_start_dt] [datetime] NULL,
-	[prd_end_dt] [datetime] NULL,
+	[prd_start_dt] [date] NULL, ----- updated the type of this column after cleaning and before inserting process from bronze to silver layer
+	[prd_end_dt] [date] NULL, -----updated the type of this column after cleaning and before inserting process from bronze to silver layer
 	[dwh_create_date] [datetime2] DEFAULT GETDATE()
 );
 
