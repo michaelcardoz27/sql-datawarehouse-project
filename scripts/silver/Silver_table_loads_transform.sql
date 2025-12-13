@@ -59,22 +59,35 @@ cast(lead(prd_start_dt) over (partition by prd_key order by prd_start_dt)-1 as d
 from bronze.crm_prod_info;
 ----------------------------------------------------------------------------------------------
 
-SELECT
-    sls_sales,
-    sls_quantity,
-    sls_price,
-
-    /* Corrected sales */
-    CASE
-        WHEN sls_sales IS NULL
-          OR sls_sales <= 0
-          OR sls_sales <> sls_quantity * ABS(sls_price)
-        THEN sls_quantity * ABS(sls_price)
-        ELSE sls_sales
-    END AS sls_sales2,
-
-    /* Corrected price based on corrected sales */
-    CASE
+insert into silver.crm_sales_details(
+sls_ord_num,
+sls_prd_key,
+sls_cust_id,
+sls_order_dt,
+sls_ship_dt,
+sls_due_dt,
+sls_sales,
+sls_quantity,
+sls_price
+)
+select
+sls_ord_num,
+sls_prd_key,
+sls_cust_id,
+case when sls_order_dt <= 0 or LEN(sls_order_dt) != 8 or sls_order_dt > 20500101 or sls_order_dt < 19000101 then NULL
+	else cast(cast(sls_order_dt as varchar) as date)
+	end as sls_order_dt,
+cast(CAST(sls_ship_dt as varchar) as date) as sls_ship_dt,
+cast(CAST(sls_due_dt as varchar) as date) as sls_due_dt,
+CASE
+    WHEN sls_sales IS NULL
+        OR sls_sales <= 0
+        OR sls_sales <> sls_quantity * ABS(sls_price)
+    THEN sls_quantity * ABS(sls_price)
+    ELSE sls_sales
+END AS sls_sales,
+sls_quantity,
+CASE
         WHEN sls_price IS NULL
           OR sls_price <= 0
           OR sls_price <>
@@ -98,26 +111,6 @@ SELECT
                 END
             ) / sls_quantity
         ELSE sls_price
-    END AS sls_price2,
-
-    /* Fallback price logic */
-    CASE
-        WHEN sls_price IS NULL
-          OR sls_price <= 0
-        THEN sls_sales / NULLIF(sls_quantity, 0)
-        ELSE sls_price
-    END AS sls_price3
-
+    END AS sls_price
 FROM bronze.crm_sales_details
-WHERE
-    sls_sales <> sls_quantity * sls_price
-    OR sls_sales <= 0
-    OR sls_quantity <= 0
-    OR sls_price <= 0
-    OR sls_quantity IS NULL
-    OR sls_sales IS NULL
-    OR sls_price IS NULL
-ORDER BY
-    sls_sales,
-    sls_quantity,
-    sls_price;
+
