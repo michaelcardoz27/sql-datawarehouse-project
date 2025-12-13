@@ -31,65 +31,45 @@ distinct cst_marital_status
 from silver.crm_cust_info
 --------------------------------------------------------------------
 
-SELECT
-    sls_sales,
-    sls_quantity,
-    sls_price,
+--- Check for Invalid dates in bronze layer before trnasforming and inserting to silver layer
+--- check for invalid pricing and quantity
+select
+nullif(sls_order_dt,0) as sls_order_dt
+from bronze.crm_sales_details
+where sls_order_dt <= 0
+or LEN(sls_order_dt) != 8
+or sls_order_dt > 20500101
+or sls_order_dt < 19000101
 
-    /* Corrected sales */
-    CASE
-        WHEN sls_sales IS NULL
-          OR sls_sales <= 0
-          OR sls_sales <> sls_quantity * ABS(sls_price)
-        THEN sls_quantity * ABS(sls_price)
-        ELSE sls_sales
-    END AS sls_sales2,
+select
+nullif(sls_ship_dt,0) as sls_ship_dt
+from bronze.crm_sales_details
+where sls_ship_dt <= 0
+or LEN(sls_ship_dt) != 8
+or sls_ship_dt > 20500101
+or sls_ship_dt < 19000101
 
-    /* Corrected price based on corrected sales */
-    CASE
-        WHEN sls_price IS NULL
-          OR sls_price <= 0
-          OR sls_price <>
-             (
-                 CASE
-                     WHEN sls_sales IS NULL
-                       OR sls_sales <= 0
-                       OR sls_sales <> sls_quantity * ABS(sls_price)
-                     THEN sls_quantity * ABS(sls_price)
-                     ELSE sls_sales
-                 END
-             ) / sls_quantity
-        THEN
-            (
-                CASE
-                    WHEN sls_sales IS NULL
-                      OR sls_sales <= 0
-                      OR sls_sales <> sls_quantity * ABS(sls_price)
-                    THEN sls_quantity * ABS(sls_price)
-                    ELSE sls_sales
-                END
-            ) / sls_quantity
-        ELSE sls_price
-    END AS sls_price2,
+select
+nullif(sls_due_dt,0) as sls_due_dt
+from bronze.crm_sales_details
+where sls_due_dt <= 0
+or LEN(sls_due_dt) != 8
+or sls_due_dt > 20500101
+or sls_due_dt < 19000101
 
-    /* Fallback price logic */
-    CASE
-        WHEN sls_price IS NULL
-          OR sls_price <= 0
-        THEN sls_sales / NULLIF(sls_quantity, 0)
-        ELSE sls_price
-    END AS sls_price3
+select
+*
+from bronze.crm_sales_details
+where sls_order_dt > sls_ship_dt
+or sls_order_dt > sls_due_dt
 
-FROM bronze.crm_sales_details
-WHERE
-    sls_sales <> sls_quantity * sls_price
-    OR sls_sales <= 0
-    OR sls_quantity <= 0
-    OR sls_price <= 0
-    OR sls_quantity IS NULL
-    OR sls_sales IS NULL
-    OR sls_price IS NULL
-ORDER BY
-    sls_sales,
-    sls_quantity,
-    sls_price;
+
+select
+sls_sales,
+sls_quantity,
+sls_price
+from bronze.crm_sales_details
+where sls_sales != sls_quantity*sls_price
+or sls_sales <= 0 or sls_quantity <= 0 or sls_price <= 0
+or sls_quantity is null or sls_sales is null or sls_price is null
+order by sls_sales, sls_quantity, sls_price
