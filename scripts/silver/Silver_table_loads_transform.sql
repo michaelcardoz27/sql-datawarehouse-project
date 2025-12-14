@@ -113,4 +113,24 @@ CASE
         ELSE sls_price
     END AS sls_price
 FROM bronze.crm_sales_details
+------------------------------------------------------------------------------------------
+select
+case when CID like 'NAS%'
+	then SUBSTRING(CID,4,len(cid))
+	else CID
+	end as CID,
+case when bdate > getdate()
+	then null
+	else bdate
+	end as bdate,
+case gen
+	when 'F' then 'Female'
+	when 'M' then 'Male'
+	when 'Male' then 'Male'
+	when 'Female' then 'Female'
+	else 'N/A'
+	end as gen
+from bronze.erp_CUST_AZ12
+
+
 
