@@ -114,6 +114,11 @@ CASE
     END AS sls_price
 FROM bronze.crm_sales_details
 ------------------------------------------------------------------------------------------
+insert into silver.erp_CUST_AZ12(
+CID,
+BDATE,
+GEN
+)
 select
 case when CID like 'NAS%'
 	then SUBSTRING(CID,4,len(cid))
@@ -131,6 +136,8 @@ case gen
 	else 'N/A'
 	end as gen
 from bronze.erp_CUST_AZ12
+
+
 
 
 
