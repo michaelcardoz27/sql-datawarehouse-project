@@ -149,6 +149,15 @@ case when TRIM(CNTRY) = 'DE' then 'Germany'
 	else TRIM(CNTRY)
 end CNTRY
 from bronze.erp_LOC_A101
-
+-------------------------------------------------------------------------------------------
+insert into silver.erp_PX_CAT_G1V2(
+ID,
+CAT,
+SUBCAT,
+MAINTENANCE
+)
+select
+*
+from bronze.erp_PX_CAT_G1V2
 
 
