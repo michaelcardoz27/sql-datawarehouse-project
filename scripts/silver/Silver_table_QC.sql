@@ -73,3 +73,30 @@ where sls_sales != sls_quantity*sls_price
 or sls_sales <= 0 or sls_quantity <= 0 or sls_price <= 0
 or sls_quantity is null or sls_sales is null or sls_price is null
 order by sls_sales, sls_quantity, sls_price
+
+--------------------------------------------------------------------------------------------------
+select
+ID
+from bronze.erp_PX_CAT_G1V2
+where not exists (select
+distinct cat_id
+from silver.crm_prod_info)
+
+select
+distinct cat_id
+from silver.crm_prod_info
+
+select
+distinct CAT
+from bronze.erp_PX_CAT_G1V2
+where CAT != TRIM(CAT)
+
+select
+distinct SUBCAT
+from bronze.erp_PX_CAT_G1V2
+where SUBCAT != TRIM(SUBCAT)
+
+select
+distinct MAINTENANCE
+from bronze.erp_PX_CAT_G1V2
+where MAINTENANCE != TRIM(MAINTENANCE)
