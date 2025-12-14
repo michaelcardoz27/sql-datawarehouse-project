@@ -1,7 +1,7 @@
 /*
 This file transforms and cleans the data before being inserted into the Silver layer
 */
-
+TRUNCATE TABLE silver.crm_cust_info
 INSERT INTO silver.crm_cust_info(
 	cst_id,
 	cst_key,
@@ -32,6 +32,7 @@ FROM bronze.crm_cust_info
 ) t
 where flag_last = 1;
 --------------------------------------------------------------------------------------
+TRUNCATE TABLE silver.crm_prod_info
 Insert into silver.crm_prod_info(
 	[prd_id],
 	[cat_id],
@@ -58,7 +59,7 @@ cast(prd_start_dt as date) as prd_start_dt,
 cast(lead(prd_start_dt) over (partition by prd_key order by prd_start_dt)-1 as date) as prd_end_dt
 from bronze.crm_prod_info;
 ----------------------------------------------------------------------------------------------
-
+TRUNCATE TABLE silver.crm_sales_details
 insert into silver.crm_sales_details(
 sls_ord_num,
 sls_prd_key,
@@ -114,6 +115,7 @@ CASE
     END AS sls_price
 FROM bronze.crm_sales_details
 ------------------------------------------------------------------------------------------
+TRUNCATE TABLE silver.erp_CUST_AZ12
 insert into silver.erp_CUST_AZ12(
 CID,
 BDATE,
@@ -137,6 +139,7 @@ case gen
 	end as gen
 from bronze.erp_CUST_AZ12
 -------------------------------------------------------------------------------------------
+TRUNCATE TABLE silver.erp_LOC_A101
 insert into silver.erp_LOC_A101(
 CID,
 CNTRY
@@ -150,6 +153,7 @@ case when TRIM(CNTRY) = 'DE' then 'Germany'
 end CNTRY
 from bronze.erp_LOC_A101
 -------------------------------------------------------------------------------------------
+TRUNCATE TABLE silver.erp_PX_CAT_G1V2
 insert into silver.erp_PX_CAT_G1V2(
 ID,
 CAT,
