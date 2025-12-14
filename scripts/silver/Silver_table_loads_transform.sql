@@ -136,8 +136,19 @@ case gen
 	else 'N/A'
 	end as gen
 from bronze.erp_CUST_AZ12
-
-
+-------------------------------------------------------------------------------------------
+insert into silver.erp_LOC_A101(
+CID,
+CNTRY
+)
+select
+REPLACE(CID,'-','') as CID,
+case when TRIM(CNTRY) = 'DE' then 'Germany'
+	when TRIM(CNTRY) in ('USA','US') then 'United States'
+	when TRIM (CNTRY) = '' or CNTRY IS NULL then 'N/A'
+	else TRIM(CNTRY)
+end CNTRY
+from bronze.erp_LOC_A101
 
 
 
